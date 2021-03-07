@@ -2,6 +2,7 @@ import BaseModel, { ModelType } from '../BaseModel';
 import BaseItem from './BaseItem';
 import ItemChange from './ItemChange';
 import Setting from './Setting';
+import Tag from './Tag';
 import shim from '../shim';
 import time from '../time';
 import markdownUtils from '../markdownUtils';
@@ -392,7 +393,7 @@ export default class Note extends BaseItem {
 			tempOptions.conditions = cond;
 
 			const uncompletedTodos = await this.search(tempOptions);
-			this.handleTitleNaturalSorting(uncompletedTodos, tempOptions);
+			await this.handleSorting(uncompletedTodos, tempOptions);
 
 			cond = options.conditions.slice();
 			if (hasNotes && hasTodos) {
@@ -405,7 +406,7 @@ export default class Note extends BaseItem {
 			tempOptions.conditions = cond;
 			if ('limit' in tempOptions) tempOptions.limit -= uncompletedTodos.length;
 			const theRest = await this.search(tempOptions);
-			this.handleTitleNaturalSorting(theRest, tempOptions);
+			await this.handleSorting(theRest, tempOptions);
 
 			return uncompletedTodos.concat(theRest);
 		}
@@ -419,7 +420,7 @@ export default class Note extends BaseItem {
 		}
 
 		const results = await this.search(options);
-		this.handleTitleNaturalSorting(results, options);
+		await this.handleSorting(results, options);
 
 		return results;
 	}
@@ -666,6 +667,11 @@ export default class Note extends BaseItem {
 		const changeSource = options && options.changeSource ? options.changeSource : null;
 		void ItemChange.add(BaseModel.TYPE_NOTE, note.id, isNew ? ItemChange.TYPE_CREATE : ItemChange.TYPE_UPDATE, changeSource, beforeNoteJson);
 
+		// inject tagList
+		const tags = await Tag.tagsByNoteIdSorted(note.id);
+		const tagList = tags.map((t: any)=>t.title).join(', ');
+		note.tagList = tagList;
+
 		if (dispatchUpdateAction) {
 			this.dispatch({
 				type: 'NOTE_UPDATE_ONE',
@@ -882,10 +888,21 @@ export default class Note extends BaseItem {
 		}
 	}
 
-	static handleTitleNaturalSorting(items: NoteEntity[], options: any) {
+	static async handleSorting(items: NoteEntity[], options: any) {
 		if (options.order.length > 0 && options.order[0].by === 'title') {
-			const collator = this.getNaturalSortingCollator();
-			items.sort((a, b) => ((options.order[0].dir === 'ASC') ? 1 : -1) * collator.compare(a.title, b.title));
+			if (Setting.value('notes.sortOrder.tags')) {
+				const tagMap: any = {};
+				for (const item of items) {
+					const tags = await Tag.tagsByNoteIdSorted(item.id);
+					const tagList = tags.map((t: any)=>t.title).join(', ');
+					tagMap[item.id] = tagList;
+				}
+				const collator = this.getNaturalSortingCollator();
+				items.sort((a, b) => ((options.order[0].dir === 'ASC') ? 1 : -1) * collator.compare(tagMap[a.id] + a.title, tagMap[b.id] + b.title));
+			} else {
+				const collator = this.getNaturalSortingCollator();
+				items.sort((a, b) => ((options.order[0].dir === 'ASC') ? 1 : -1) * collator.compare(a.title, b.title));
+			}
 		}
 	}
 

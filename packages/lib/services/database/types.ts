@@ -81,6 +81,7 @@ export interface NoteEntity {
   'parent_id'?: string;
   'title'?: string;
   'body'?: string;
+  'tagList'?: string;
   'created_time'?: number;
   'updated_time'?: number;
   'is_conflict'?: number;

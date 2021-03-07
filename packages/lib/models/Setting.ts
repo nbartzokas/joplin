@@ -634,6 +634,7 @@ class Setting extends BaseModel {
 				label: () => _('Auto-pair braces, parenthesis, quotations, etc.'),
 			},
 			'notes.sortOrder.reverse': { value: true, type: SettingItemType.Bool, section: 'note', public: true, label: () => _('Reverse sort order'), appTypes: ['cli'] },
+			'notes.sortOrder.tags': { value: true, type: SettingItemType.Bool, section: 'note', public: true, label: () => _('Sort tags before titles'), appTypes: ['cli'] },
 			'folders.sortOrder.field': {
 				value: 'title',
 				type: SettingItemType.String,

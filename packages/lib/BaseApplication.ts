@@ -318,6 +318,13 @@ export default class BaseApplication {
 			}
 		}
 
+		// inject tagList
+		for (const note of notes) {
+			const tags = await Tag.tagsByNoteIdSorted(note.id);
+			const tagList = tags.map((t: any)=>t.title).join(', ');
+			note.tagList = tagList;
+		}
+
 		this.store().dispatch({
 			type: 'SET_HIGHLIGHTED',
 			words: highlightedWords,

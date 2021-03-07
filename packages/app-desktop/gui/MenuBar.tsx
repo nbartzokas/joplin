@@ -80,6 +80,7 @@ interface Props {
 	['notes.sortOrder.field']: string;
 	['folders.sortOrder.field']: string;
 	['notes.sortOrder.reverse']: boolean;
+	['notes.sortOrder.tags']: boolean;
 	['folders.sortOrder.reverse']: boolean;
 	showNoteCounts: boolean;
 	uncompletedTodosOnTop: boolean;
@@ -218,6 +219,17 @@ function useMenu(props: Props) {
 					Setting.setValue(`${type}.sortOrder.reverse`, !Setting.value(`${type}.sortOrder.reverse`));
 				},
 			});
+
+			if (type === 'notes') {
+				sortItems.push({
+					id: `sort:${type}:tags`,
+					label: Setting.settingMetadata(`${type}.sortOrder.tags`).label(),
+					type: 'checkbox',
+					click: () => {
+						Setting.setValue(`${type}.sortOrder.tags`, !Setting.value(`${type}.sortOrder.tags`));
+					},
+				});
+			}
 
 			return sortItems;
 		};
@@ -801,6 +813,9 @@ function useMenu(props: Props) {
 			}
 
 			menuItemSetChecked(`sort:${type}:reverse`, (props as any)[`${type}.sortOrder.reverse`]);
+			if (type === 'notes') {
+				menuItemSetChecked(`sort:${type}:tags`, (props as any)[`${type}.sortOrder.tags`]);
+			}
 		}
 
 		applySortItemCheckState('notes');
@@ -815,6 +830,7 @@ function useMenu(props: Props) {
 		props['notes.sortOrder.field'],
 		props['folders.sortOrder.field'],
 		props['notes.sortOrder.reverse'],
+		props['notes.sortOrder.tags'],
 		props['folders.sortOrder.reverse'],
 		props.showNoteCounts,
 		props.uncompletedTodosOnTop,
@@ -865,6 +881,7 @@ const mapStateToProps = (state: AppState) => {
 		['notes.sortOrder.field']: state.settings['notes.sortOrder.field'],
 		['folders.sortOrder.field']: state.settings['folders.sortOrder.field'],
 		['notes.sortOrder.reverse']: state.settings['notes.sortOrder.reverse'],
+		['notes.sortOrder.tags']: state.settings['notes.sortOrder.tags'],
 		['folders.sortOrder.reverse']: state.settings['folders.sortOrder.reverse'],
 		showNoteCounts: state.settings.showNoteCounts,
 		uncompletedTodosOnTop: state.settings.uncompletedTodosOnTop,

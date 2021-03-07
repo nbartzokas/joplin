@@ -175,7 +175,9 @@ function NoteListItem(props: NoteListItemProps, ref: any) {
 				data-id={item.id}
 			>
 				{watchedIcon}
+				<span style={{ overflow: 'hidden',textOverflow: 'ellipsis',fontSize: 'xx-small',width: '10em',minWidth: '10em' }}>{item.tagList}</span>
 				{titleComp}
+				<span style={{ display: 'none' }}>{JSON.stringify(item,null,2)}</span>
 			</a>
 		</StyledRoot>
 	);

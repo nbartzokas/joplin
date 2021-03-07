@@ -55,6 +55,11 @@ class NotesScreenComponent extends BaseScreenComponent {
 			});
 
 			buttons.push({
+				text: makeCheckboxText(Setting.value('notes.sortOrder.tags'), 'tick', `[ ${Setting.settingMetadata('notes.sortOrder.tags').label()} ]`),
+				id: { name: 'notes.sortOrder.tags', value: !Setting.value('notes.sortOrder.tags') },
+			});
+
+			buttons.push({
 				text: makeCheckboxText(Setting.value('uncompletedTodosOnTop'), 'tick', `[ ${Setting.settingMetadata('uncompletedTodosOnTop').label()} ]`),
 				id: { name: 'uncompletedTodosOnTop', value: !Setting.value('uncompletedTodosOnTop') },
 			});
@@ -141,6 +146,13 @@ class NotesScreenComponent extends BaseScreenComponent {
 			notes = await Tag.notes(props.selectedTagId, options);
 		} else if (props.notesParentType === 'SmartFilter') {
 			notes = await Note.previews(null, options);
+		}
+
+		// inject tagList
+		for (const note of notes) {
+			const tags = await Tag.tagsByNoteIdSorted(note.id);
+			const tagList = tags.map(t=>t.title).join(', ');
+			note.tagList = tagList;
 		}
 
 		this.props.dispatch({

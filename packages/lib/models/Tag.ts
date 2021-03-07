@@ -128,6 +128,12 @@ export default class Tag extends BaseItem {
 		return this.modelSelectAll(`SELECT * FROM tags WHERE id IN ("${tagIds.join('","')}")`);
 	}
 
+	static async tagsByNoteIdSorted(noteId: string) {
+		const tagIds = await NoteTag.tagIdsByNoteId(noteId);
+		if (!tagIds.length) return [];
+		return this.modelSelectAll(`SELECT * FROM tags WHERE id IN ("${tagIds.join('","')}") ORDER BY title`);
+	}
+
 	static async commonTagsByNoteIds(noteIds: string[]) {
 		if (!noteIds || noteIds.length === 0) {
 			return [];
