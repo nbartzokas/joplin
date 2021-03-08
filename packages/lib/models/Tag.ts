@@ -136,18 +136,6 @@ export default class Tag extends BaseItem {
 		return tagList;
 	}
 
-	static async displayTagListByNoteId(noteId: string) {
-		const tagList = await Tag.tagListByNoteId(noteId);
-		return tagList
-			.replace(/!/g,'❗')
-			.replace('#1-Now','1️⃣')
-			.replace('#2-Next','2️⃣')
-			.replace('#3-Soon','3️⃣')
-			.replace('#4-Later','4️⃣')
-			.replace('#5-Someday','5️⃣')
-			.replace('##important','👀');
-	}
-
 	static sort(a: string, b: string) {
 		const order = '!#@_0';
 		const reg = /^[!#@_0]/;

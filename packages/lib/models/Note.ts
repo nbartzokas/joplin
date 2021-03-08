@@ -285,7 +285,13 @@ export default class Note extends BaseItem {
 				if (typeof bProp === 'string') bProp = bProp.toLowerCase();
 
 				if (order.by === 'title') {
-					r = -1 * collator.compare(aProp, bProp);
+					if (Setting.value('notes.sortOrder.tags')) {
+						r = a.tagList && b.tagList ? -1 * Tag.sort(a.tagList + a.title, b.tagList + b.title) :
+							!a.tagList && !b.tagList ? -1 * collator.compare(a.title, b.title) :
+								-1 * Tag.sort(a.tagList, b.tagList);
+					} else {
+						r = -1 * collator.compare(aProp, bProp);
+					}
 				} else {
 					if (aProp < bProp) r = +1;
 					if (aProp > bProp) r = -1;
@@ -337,6 +343,7 @@ export default class Note extends BaseItem {
 	}
 
 	static async previews(parentId: string, options: any = null) {
+		console.log('🐛 options',options);
 		// Note: ordering logic must be duplicated in sortNotes(), which is used
 		// to sort already loaded notes.
 
@@ -668,7 +675,7 @@ export default class Note extends BaseItem {
 		void ItemChange.add(BaseModel.TYPE_NOTE, note.id, isNew ? ItemChange.TYPE_CREATE : ItemChange.TYPE_UPDATE, changeSource, beforeNoteJson);
 
 		// inject tagList
-		note.tagList = await Tag.displayTagListByNoteId(note.id);
+		note.tagList = await Tag.tagListByNoteId(note.id);
 
 		if (dispatchUpdateAction) {
 			this.dispatch({

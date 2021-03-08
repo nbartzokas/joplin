@@ -175,7 +175,15 @@ function NoteListItem(props: NoteListItemProps, ref: any) {
 				data-id={item.id}
 			>
 				{watchedIcon}
-				<span style={{ overflow: 'hidden',textOverflow: 'ellipsis',fontSize: 'xx-small',width: '10em',minWidth: '10em' }}>{item.tagList}</span>
+				<span style={{ overflow: 'hidden',textOverflow: 'ellipsis',fontSize: 'xx-small',width: '10em',minWidth: '10em' }}>{item.tagList
+					.replace(/!/g,'❗')
+					.replace('#1-Now','1️⃣')
+					.replace('#2-Next','2️⃣')
+					.replace('#3-Soon','3️⃣')
+					.replace('#4-Later','4️⃣')
+					.replace('#5-Someday','5️⃣')
+					.replace('##important','👀')
+				}</span>
 				{titleComp}
 				<span style={{ display: 'none' }}>{JSON.stringify(item,null,2)}</span>
 			</a>

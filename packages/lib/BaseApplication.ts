@@ -320,7 +320,7 @@ export default class BaseApplication {
 
 		// inject tagList
 		for (const note of notes) {
-			note.tagList = await Tag.displayTagListByNoteId(note.id);
+			note.tagList = await Tag.tagListByNoteId(note.id);
 		}
 
 		this.store().dispatch({
