@@ -150,9 +150,7 @@ class NotesScreenComponent extends BaseScreenComponent {
 
 		// inject tagList
 		for (const note of notes) {
-			const tags = await Tag.tagsByNoteIdSorted(note.id);
-			const tagList = tags.map(t=>t.title).join(', ');
-			note.tagList = tagList;
+			note.tagList = await Tag.displayTagListByNoteId(note.id);
 		}
 
 		this.props.dispatch({

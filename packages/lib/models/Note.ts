@@ -668,9 +668,7 @@ export default class Note extends BaseItem {
 		void ItemChange.add(BaseModel.TYPE_NOTE, note.id, isNew ? ItemChange.TYPE_CREATE : ItemChange.TYPE_UPDATE, changeSource, beforeNoteJson);
 
 		// inject tagList
-		const tags = await Tag.tagsByNoteIdSorted(note.id);
-		const tagList = tags.map((t: any)=>t.title).join(', ');
-		note.tagList = tagList;
+		note.tagList = await Tag.displayTagListByNoteId(note.id);
 
 		if (dispatchUpdateAction) {
 			this.dispatch({
@@ -893,12 +891,17 @@ export default class Note extends BaseItem {
 			if (Setting.value('notes.sortOrder.tags')) {
 				const tagMap: any = {};
 				for (const item of items) {
-					const tags = await Tag.tagsByNoteIdSorted(item.id);
-					const tagList = tags.map((t: any)=>t.title).join(', ');
-					tagMap[item.id] = tagList;
+					tagMap[item.id] = await Tag.tagListByNoteId(item.id);
 				}
 				const collator = this.getNaturalSortingCollator();
-				items.sort((a, b) => ((options.order[0].dir === 'ASC') ? 1 : -1) * collator.compare(tagMap[a.id] + a.title, tagMap[b.id] + b.title));
+				items.sort((a, b) => {
+					const direction = ((options.order[0].dir === 'ASC') ? 1 : -1);
+					// const order = collator.compare(tagMap[a.id] + a.title, tagMap[b.id] + b.title)
+					const order = tagMap[a.id] && tagMap[b.id] ? Tag.sort(tagMap[a.id] + a.title, tagMap[b.id] + b.title) :
+						!tagMap[a.id] && !tagMap[b.id] ? collator.compare(a.title, b.title) :
+							Tag.sort(tagMap[a.id], tagMap[b.id]);
+					return direction * order;
+				});
 			} else {
 				const collator = this.getNaturalSortingCollator();
 				items.sort((a, b) => ((options.order[0].dir === 'ASC') ? 1 : -1) * collator.compare(a.title, b.title));

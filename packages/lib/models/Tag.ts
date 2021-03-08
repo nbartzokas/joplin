@@ -128,10 +128,50 @@ export default class Tag extends BaseItem {
 		return this.modelSelectAll(`SELECT * FROM tags WHERE id IN ("${tagIds.join('","')}")`);
 	}
 
-	static async tagsByNoteIdSorted(noteId: string) {
-		const tagIds = await NoteTag.tagIdsByNoteId(noteId);
-		if (!tagIds.length) return [];
-		return this.modelSelectAll(`SELECT * FROM tags WHERE id IN ("${tagIds.join('","')}") ORDER BY title`);
+	static async tagListByNoteId(noteId: string) {
+		const tags = await Tag.tagsByNoteId(noteId);
+		const tagList = tags.map((t: any)=>t.title)
+			.sort(Tag.sort)
+			.join(', ');
+		return tagList;
+	}
+
+	static async displayTagListByNoteId(noteId: string) {
+		const tagList = await Tag.tagListByNoteId(noteId);
+		return tagList
+			.replace(/!/g,'❗')
+			.replace('#1-Now','1️⃣')
+			.replace('#2-Next','2️⃣')
+			.replace('#3-Soon','3️⃣')
+			.replace('#4-Later','4️⃣')
+			.replace('#5-Someday','5️⃣')
+			.replace('##important','👀');
+	}
+
+	static sort(a: string, b: string) {
+		const order = '!#@_0';
+		const reg = /^[!#@_0]/;
+		// if no tag, sort to top
+		// sort specials by order and above all others
+		// if the same special, revert to normal sort
+		// default to normal sort
+		if (!a) {
+			return -1;
+		} else if (!b) {
+			return 1;
+		} else if (reg.test(a) && reg.test(b)) {
+			if (a[0] === b[0]) {
+				return a < b ? -1 : 1;
+			} else {
+				return order.indexOf(a[0]) < order.indexOf(b[0]) ? -1 : 1;
+			}
+		} else if (reg.test(a)) {
+			return -1;
+		} else if (reg.test(b)) {
+			return 1;
+		}	else {
+			return a < b ? -1 : 1;
+		}
 	}
 
 	static async commonTagsByNoteIds(noteIds: string[]) {
