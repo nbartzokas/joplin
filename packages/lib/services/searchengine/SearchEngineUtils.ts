@@ -25,7 +25,7 @@ export default class SearchEngineUtils {
 		}
 
 		const previewOptions = Object.assign({}, {
-			order: [],
+			order: [{ by: 'title',dir: 'ASC' }],
 			fields: fields,
 			conditions: [`id IN ("${noteIds.join('","')}")`],
 		}, options);
@@ -38,7 +38,8 @@ export default class SearchEngineUtils {
 		const sortedNotes = [];
 		for (let i = 0; i < notes.length; i++) {
 			const idx = noteIds.indexOf(notes[i].id);
-			sortedNotes[idx] = notes[i];
+			// sortedNotes[idx] = notes[i]; // apply search relevance order
+			sortedNotes[i] = notes[i]; // retain chosen sort order
 			if (idWasAutoAdded) delete sortedNotes[idx].id;
 		}
 
